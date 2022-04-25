@@ -74,7 +74,6 @@ export const spec = {
           format: bidRequest.mediaTypes[mediaType].sizes
         };
       }
-
       return {
         method: 'POST',
         url: URL,
@@ -85,19 +84,20 @@ export const spec = {
   },
   interpretResponse: function (serverResponse, request) {
     const data = serverResponse.body;
-    const bidResponses = [];
-    const bidResponse = {
-      requestId: data.request_bid_id,
-      cpm: data.bid_amount,
-      width: data.width,
-      height: data.height,
-      creativeId: data.crid,
-      currency: data.bid_currency,
-      netRevenue: true,
-      ttl: TIME_TO_LIVE,
-      ad: data.content,
-    };
-    bidResponses.push(bidResponse);
+    const bidResponses = data?.seatbid[0]?.bid.map((bid) => {
+      const formattedBid = {
+        requestId: data.id,
+        cpm: bid.price,
+        width: bid.w,
+        height: bid.h,
+        creativeId: bid.id,
+        currency: data.cur,
+        netRevenue: true,
+        ttl: TIME_TO_LIVE,
+        ad: bid.adm,
+      };
+      return formattedBid
+    })
     return bidResponses;
   },
   getUserSyncs: function (
@@ -105,9 +105,9 @@ export const spec = {
     serverResponses,
     gdprConsent,
     uspConsent
-  ) {},
-  onTimeout: function (timeoutData) {},
-  onBidWon: function (bid) {},
-  onSetTargeting: function (bid) {},
+  ) { },
+  onTimeout: function (timeoutData) { },
+  onBidWon: function (bid) { },
+  onSetTargeting: function (bid) { },
 };
 registerBidder(spec);
